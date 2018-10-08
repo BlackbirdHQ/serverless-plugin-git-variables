@@ -45,6 +45,10 @@ export default class ServerlessGitVariables {
   }
 
   async _getValueFromGit(variable) {
+    const fakeGitVariables = this.serverless.processedInput && this.serverless.processedInput.options && this.serverless.processedInput.options.fakeGitVariables
+    if (fakeGitVariables === true || fakeGitVariables === 'true') {
+      return 'fake-value'
+    }
     let value = null
     switch (variable) {
       case 'describe':

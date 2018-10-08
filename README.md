@@ -46,6 +46,8 @@ For more information on annotated and lightweight tags go to the [git documentat
 * If you're using serverless 1.16.x or above, use the >=2.x.x version of this plugin.
 
 # Version History
+* 3.3.0
+  - Add opts flag to disable generating git information using `sls <command> --fakeGitVariables true` (Thanks to @Tehnix)
 * 3.2.0
   - Added a describeLight git variable, which allows use of lightweight tags (Thanks to @domroutley)
 * 3.1.1

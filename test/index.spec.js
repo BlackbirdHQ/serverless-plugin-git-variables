@@ -45,7 +45,7 @@ test.serial('Rejects on bad git command', async t => {
   process.chdir(t.context.tmpDir)
   const sls = buildSls()
   sls.service.custom.describe = '${git:message}' // eslint-disable-line
-  await t.throws(sls.variables.populateService(), /Not a git repository/)
+  await t.throws(sls.variables.populateService(), /not a git repository/)
 })
 
 test.serial('Inserts variables', async t => {
@@ -142,4 +142,36 @@ test.serial('Disabling export of env variables', async t => {
   t.is(func.environment.GIT_IS_DIRTY, undefined)
 
   t.is(func.tags, undefined)
+})
+
+test.serial('Faking git variables', async t => {
+  fs.copySync('test/resources/full_repo/git', `${t.context.tmpDir}/.git`)
+  process.chdir(t.context.tmpDir)
+
+  const func = {
+    name: 'myFunction',
+    environment: {}
+  }
+
+  const fakeServerless = {
+    service: {
+      getAllFunctions: () => [func.name],
+      getFunction: name => func
+    },
+    variables: {
+      getValueFromSource: () => 'fake'
+    },
+    processedInput: {
+      options: {
+        fakeGitVariables: 'true'
+      }
+    }
+  }
+  const plugin = new ServerlessGitVariables(fakeServerless, {})
+  await plugin.exportGitVariables()
+
+  t.is(func.environment.GIT_COMMIT_SHORT, 'fake-value')
+  t.is(func.environment.GIT_COMMIT_LONG, 'fake-value')
+  t.is(func.environment.GIT_BRANCH, 'fake-value')
+  t.is(func.environment.GIT_IS_DIRTY, 'fake-value')
 })
